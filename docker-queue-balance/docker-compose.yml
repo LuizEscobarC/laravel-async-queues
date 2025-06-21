@@ -47,7 +47,7 @@ services:
     working_dir: /var/www/html
     volumes:
       - ./:/var/www/html
-    command: php artisan queue:work redis --queue=high --sleep=3 --tries=3 --max-time=3600
+    command: php artisan queue:work redis --queue=high-priority --sleep=3 --tries=3 --max-time=3600
     depends_on:
       - redis
       - app
@@ -81,7 +81,7 @@ services:
     working_dir: /var/www/html
     volumes:
       - ./:/var/www/html
-    command: php artisan queue:work redis --queue=low --sleep=5 --tries=3 --max-time=3600
+    command: php artisan queue:work redis --queue=low-priority --sleep=5 --tries=3 --max-time=3600
     depends_on:
       - redis
       - app
@@ -96,7 +96,7 @@ services:
     working_dir: /var/www/html
     volumes:
       - ./:/var/www/html
-    command: php artisan queue:monitor redis --queue=high,default,low
+    command: php artisan queue:work redis --queue=high-priority,default,low-priority --sleep=3 --tries=3 --max-time=3600
     depends_on:
       - redis
       - app
