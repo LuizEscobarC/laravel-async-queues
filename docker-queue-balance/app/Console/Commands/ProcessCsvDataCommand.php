@@ -13,7 +13,8 @@ class ProcessCsvDataCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'process:csv-data {--batch-size=10 : Number of records per batch}';
+    protected $signature = 'process:csv-data {--batch-size=10 : Number of records per batch}
+                                             {--file= : Path to the CSV file}';
 
     /**
      * The console command description.
@@ -29,7 +30,8 @@ class ProcessCsvDataCommand extends Command
     {
         $this->info('🌡️  Starting CSV climate data processing...');
         
-        $csvPath = base_path('data.csv');
+        $file = $this->option('file') ?: 'data.csv';
+        $csvPath = base_path("{$file}");
         $batchSize = (int) $this->option('batch-size');
         
         if (!file_exists($csvPath)) {

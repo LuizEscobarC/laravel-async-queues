@@ -49,6 +49,7 @@ class ProcessCsvDataJob implements ShouldQueue
         foreach ($this->csvData as $row) {
             try {
                 // Simula processamento pesado, se não ficaria muito rapido para analisar a fila funcionando
+                sleep(1);
                 
                 TemperatureReading::create(attributes: [
                     'reading_date' => Carbon::parse($row['data']),
