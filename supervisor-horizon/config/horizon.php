@@ -185,7 +185,7 @@ return [
             'queue' => ['default'],
             'balance' => 'auto',
             'autoScalingStrategy' => 'time',
-            'maxProcesses' => 1,
+            'maxProcesses' => 5,
             'maxTime' => 0,
             'maxJobs' => 0,
             'memory' => 128,
@@ -199,14 +199,24 @@ return [
         'production' => [
             'supervisor-1' => [
                 'maxProcesses' => 10,
-                'balanceMaxShift' => 1,
+                'balanceMaxShift' => 2,
                 'balanceCooldown' => 3,
             ],
         ],
 
         'local' => [
             'supervisor-1' => [
-                'maxProcesses' => 3,
+                'connection' => 'redis',
+                'queue' => ['default'],
+                'balance' => 'auto',
+                'autoScalingStrategy' => 'time',
+                'maxProcesses' => 5,
+                'maxTime' => 0,
+                'maxJobs' => 0,
+                'memory' => 128,
+                'tries' => 1,
+                'timeout' => 60,
+                'nice' => 0,
             ],
         ],
     ],
