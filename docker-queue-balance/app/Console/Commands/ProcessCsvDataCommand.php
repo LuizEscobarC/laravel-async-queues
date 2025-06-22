@@ -29,7 +29,7 @@ class ProcessCsvDataCommand extends Command
     {
         $this->info('🌡️  Starting CSV climate data processing...');
         
-        $csvPath = base_path('../data.csv');
+        $csvPath = base_path('data.csv');
         $batchSize = (int) $this->option('batch-size');
         
         if (!file_exists($csvPath)) {

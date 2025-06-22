@@ -1,6 +1,15 @@
-version: '3.8'
-
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: laravel-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - laravel-network
+
   app:
     build: .
     container_name: laravel-app
@@ -28,43 +37,14 @@ services:
     networks:
       - laravel-network
 
-  redis:
-    image: redis:7-alpine
-    container_name: laravel-redis
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    networks:
-      - laravel-network
-
-  # Worker para fila de alta prioridade
+  # Worker para todas as filas, priorizando high-priority
   queue-high:
     build: .
-    container_name: queue-high-worker
     restart: unless-stopped
     working_dir: /var/www/html
     volumes:
       - ./:/var/www/html
-    command: php artisan queue:work redis --queue=high-priority --sleep=3 --tries=3 --max-time=3600
-    depends_on:
-      - redis
-      - app
-    networks:
-      - laravel-network
-    deploy:
-      replicas: 3
-
-  # Worker para fila padrão
-  queue-default:
-    build: .
-    container_name: queue-default-worker
-    restart: unless-stopped
-    working_dir: /var/www/html
-    volumes:
-      - ./:/var/www/html
-    command: php artisan queue:work redis --queue=default --sleep=3 --tries=3 --max-time=3600
+    command: php artisan queue:work redis --queue=high-priority,default,low-priority --sleep=1 --tries=3 --max-time=3600
     depends_on:
       - redis
       - app
@@ -73,35 +53,37 @@ services:
     deploy:
       replicas: 2
 
-  # Worker para fila de baixa prioridade
+  # Worker para default e low-priority
+  queue-default:
+    build: .
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    command: php artisan queue:work redis --queue=default,low-priority --sleep=2 --tries=3 --max-time=3600
+    depends_on:
+      - redis
+      - app
+    networks:
+      - laravel-network
+    deploy:
+      replicas: 2
+
+  # Worker apenas para low-priority
   queue-low:
     build: .
-    container_name: queue-low-worker
     restart: unless-stopped
     working_dir: /var/www/html
     volumes:
       - ./:/var/www/html
-    command: php artisan queue:work redis --queue=low-priority --sleep=5 --tries=3 --max-time=3600
+    command: php artisan queue:work redis --queue=low-priority --sleep=3 --tries=3 --max-time=3600
     depends_on:
       - redis
       - app
     networks:
       - laravel-network
-
-  # Monitor de filas
-  queue-monitor:
-    build: .
-    container_name: queue-monitor
-    restart: unless-stopped
-    working_dir: /var/www/html
-    volumes:
-      - ./:/var/www/html
-    command: php artisan queue:work redis --queue=high-priority,default,low-priority --sleep=3 --tries=3 --max-time=3600
-    depends_on:
-      - redis
-      - app
-    networks:
-      - laravel-network
+    deploy:
+      replicas: 1
 
 volumes:
   redis_data:
