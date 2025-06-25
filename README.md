@@ -18,6 +18,7 @@
 
 ## 🎯 Visão Geral
 
+
 Este repositório contém duas implementações distintas de **filas assíncronas** no Laravel, cada uma seguindo uma estratégia arquitetural diferente:
 
 1. **supervisor-horizon**: Container único com Supervisor gerenciando Horizon
